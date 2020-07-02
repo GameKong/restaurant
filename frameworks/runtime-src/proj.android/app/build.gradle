@@ -55,7 +55,6 @@ android {
         manifest.srcFile "AndroidManifest.xml"
         assets.srcDir "../../../../res/"
         assets.srcDir "../../../../src/"
-//        assets.srcDir "../../../../aaa/"
     }
 
     externalNativeBuild {

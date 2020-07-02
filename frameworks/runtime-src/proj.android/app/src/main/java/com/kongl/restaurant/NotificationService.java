@@ -11,14 +11,20 @@ import android.util.Log;
 import java.util.Calendar;
 
 public class NotificationService extends Service {
+    private String receiverFilter = "com.example.notificationtest.broadcast";
     public NotificationService() {
 
     }
 
+    // 第一次启动服务执行
     @Override
     public void onCreate() {
         Log.d("onCreate", " NotificationService onCreate 运行了");
+
+        // 在服务中注册广播接受器
         registerReceiver();
+
+        // 设置计时器
         setAlarm();
     }
     @Override
@@ -30,24 +36,34 @@ public class NotificationService extends Service {
     public void registerReceiver()
     {
         NotificationReceiver nfr = new NotificationReceiver();
-        IntentFilter itf = new IntentFilter("com.example.notificationtest.broadcast");
+        IntentFilter itf = new IntentFilter(receiverFilter);
         registerReceiver(nfr, itf);
     }
 
     public void setAlarm()
     {
+        // 设置触发时间
         Calendar calendar = Calendar.getInstance();
         calendar.setTimeInMillis(System.currentTimeMillis());
-        int minute = calendar.get(Calendar.MINUTE) + 1;
-        calendar.set(Calendar.MINUTE, minute);
+        calendar.set(Calendar.HOUR, 15);
+        calendar.set(Calendar.MINUTE, 0);
+        calendar.set(Calendar.SECOND, 0);
 
-        Intent intent = new Intent("com.example.notificationtest.broadcast");
+        // 设置与广播接收器相同的action
+        Intent intent = new Intent(receiverFilter);
         PendingIntent pi = PendingIntent.getBroadcast(this, 99, intent, PendingIntent.FLAG_UPDATE_CURRENT);
 
         AlarmManager alarmMgr = (AlarmManager) getSystemService(ALARM_SERVICE);
-        alarmMgr.setRepeating(AlarmManager.RTC_WAKEUP,
-                calendar.getTimeInMillis(),
-                1 * 60 * 1000, pi);
+
+        /*  setRepeating:循环发送
+            type:闹钟类型，唤醒设备以在指定的时间触发待定intent
+            triggerAtMillis:触发时间
+            intervalMillis：间隔时间
+        */
+        int type = AlarmManager.RTC_WAKEUP;
+        long triggerAtMillis = calendar.getTimeInMillis();
+        long intervalMillis = 24 * 60 * 60 * 1000;
+        alarmMgr.setRepeating(type, triggerAtMillis, intervalMillis, pi);
     }
 }
 

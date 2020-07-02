@@ -59,6 +59,7 @@ set(GAME_SOURCE ${RUNTIME_SRC_ROOT}/Classes/AppDelegate.cpp)
 list(APPEND GAME_SOURCE 
 	${RUNTIME_SRC_ROOT}/Classes/Sqlite3/sqlite3.c
 	${RUNTIME_SRC_ROOT}/Classes/Sqlite3/lsqlite3.c
+	${RUNTIME_SRC_ROOT}/Classes/jniTest.cpp
 	)
 
 # sources need to compile info, include dirs and source files

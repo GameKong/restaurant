@@ -76,7 +76,9 @@ public class AppActivity extends Cocos2dxActivity{
 
     // lua Java测试
     public static void test() {
+
         Log.d("测试Tag","33333333333");
+        jniTest("******JNITEST");
     }
 
     // 创建通知渠道
@@ -101,4 +103,7 @@ public class AppActivity extends Cocos2dxActivity{
             notificationManager.createNotificationChannel(channel);
         }
     }
+
+    public static native void jniTest(java.lang.String string_args);
+
 }

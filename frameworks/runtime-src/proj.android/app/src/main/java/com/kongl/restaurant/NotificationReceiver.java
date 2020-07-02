@@ -28,24 +28,8 @@ public class NotificationReceiver extends BroadcastReceiver {
     {
         // Create an explicit intent for an Activity in your app
         Intent m_intent = new Intent(context, AppActivity.class);
-        String text = intent.getExtras().getString("text");
-        intent.putExtra("text", text);
         PendingIntent pendingIntent = PendingIntent.getActivity(context, 0, m_intent, PendingIntent.FLAG_UPDATE_CURRENT);
 
-        Calendar calendar = Calendar.getInstance();
-        int h = calendar.get(Calendar.HOUR);
-        int m = calendar.get(Calendar.MINUTE);
-        int s = calendar.get(Calendar.SECOND);
-
-        int last = (int)NotificationReceiver.time_stamp;
-        int now = (int)(System.currentTimeMillis() / 1000);
-        int st = now - last;
-        long lh = st / 3600;
-        long lm = st % 60;
-        long ls = st % 3600;
-        NotificationReceiver.time_stamp = System.currentTimeMillis() / 1000;
-
-        String big_text = String.format("%d时%d分%d秒, 距离上次%d时%d分%d秒。\n last:%d \n now:%d", h, m, s, lh ,lm, ls, last, now);
         NotificationCompat.Builder builder = new NotificationCompat.Builder(context, AppActivity.notify_channel)
                 // @必需设置的内容
                 // 设置通知图标
