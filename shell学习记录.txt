@@ -1,0 +1,371 @@
+一：基本常识
+1. #!  这个符号告诉系统用什么解释器来执行 shell 脚本。 通常是 #!/bin/bash
+2. 执行当前目录下的 xx.sh脚本， 使用命令 ./xx.sh，不可以使用 xx.sh。 因为xx.sh，系统会在PATH中查找，而不是当前目录
+
+shell变量
+1.变量定义不能有空格，不需要加$符号，例如：name="kongl"
+2.使用一个变量时需要加$符号，花括号是可选的，加花括号是为了帮助解释器识别变量边界，例如：
+		name="mstring"
+		echo $name
+		echo "test string is ${name}value"
+  不给name加{}，系统会认为namevalue是一个变量名，其值为空
+3.只读变量，可以将变量定义为只读变量，例如：
+		name="test_string"
+		readOnly name
+		name="test_string". -- 此步骤报错：/bin/sh: NAME: This variable is read only.
+4.删除变量，unset命令可以删除变量，但是不能删除制度变量。例如
+		name="test_string"
+		unset name
+		echo $name -- 此步骤没有任何输出
+5.变量类型
+		局部变量：在shell脚本或命令中定义的变量，仅在当前shell实例中有效，其他shell脚本不可见。
+		环境变量：所有程序，包括shell启动的程序，都能访问环境变量。必要的时候shell脚本也可以定义环境变量。
+		shell变量：shell变量是由shell程序设置的特殊变量，shell变量中有一部分是环境变量，一部分是局部变量。
+6.shell字符串，字符串可以由单引号和双引号表示
+	单引号限制：
+		单引号不可以在引号内加入变量。只能原样输出。
+		单引号内不可添加淡出一个单引号。必须成对出现，作为字符串拼接使用。
+	双引号优点：
+		双引号内可以添加变量。
+
+	例如：
+		name="test_string"
+		name2="this is ${name} !" <=> name2="this is "$name" !" <=> name2='this is '$name' !'  
+		echo name2 -- 输出为 this is test_string !
+		name3='this is ${name} !'  -- 输出为 this is ${name} !
+7.获取字符串长度：使用#，例如：
+		name="kong"
+		echo ${#name} -- 输出4
+8.截取字符串子串，例如：
+		name="kongling"
+		echo ${name:2:3} -- 输出ngl
+9.从标准输入中读取一行用read,例如：
+		read name  -- 此步骤需要从控制台输入字符串，储存在name变量中
+		echo $name -- 打印从控制台输入的字符串
+shell数组
+1.数组用”括号“来表示，元素之间用“空格”符号分割开。起始索引为0，定义数组的一般形式例如：
+		arr=(11 33 44 666)
+	或
+		arr=(
+		11
+		33
+		44
+		666  
+		)
+	也可以单独定义某个元素，索引必须大于等于0且没有上限，例如：
+		arr[999]=3
+		
+2.读取数组元素一般格式是 ${arr[index]},例如 value=${arr[0]}
+3.使用@获取数组全部元素。例如 echo ${arr[@]}
+4.获取数组元素个数使用 ${#arr[@]} 或 ${arr[*]}
+
+shell注释
+1.单行注释，在行开头使用#即可。
+2.多行注释，例如以下形式，EOF可以为任何字符
+		:<<EOF
+		..注释内容
+		..注释内容
+		...
+		EOF
+
+二：传递参数
+1.在shell脚本中获取参数的格式为：$n, n代表一个数字，代表执行脚本的第n个参数，例如：
+	脚本内容：
+		#！bin/bash
+		name1=$1
+		name2=$2
+		echo $name1
+		echo $name2
+	控制台执行：
+		sh ./xx.sh  kong ling
+		输出:
+			kong
+			ling
+
+2.$@表示所有的参数，$*与$@相同，$#表示传递给脚本的参数个数
+		$* 与 $@ 区别：
+				相同点：都是引用所有参数。
+				不同点：只有在双引号中体现出来。假设在脚本运行时写了三个参数 1、2、3，
+					则 " * " 等价于 "1 2 3"（传递了一个参数），而 "@" 等价于 "1" "2" "3"（传递了三个参数）。
+三：shell运算符
+1.算数运算，使用expr,例如：
+		echo `expr 2 + 2`   --数字与运算符中间加空格
+1.+、-、*、/、%、 使用形如 `expr 1 + 1`的方式计算， *需要加转义字符\，例如`expr 1 \* 2`。MAC中的expr可以用$((1 * 2))表示，*不需要转义字符。
+2.赋值使用 a=$b的形式
+3.相等==，不相等!= 使用如下形式： [ $a == $b ]
+4.关系运算符，只支持数字，不支持字符串，除非字符串是数字。以下为关系运算符及其用法：
+		1.等于：		-eq 		[ $a -eq $b ]
+		2.不等于：	-ne 		[ $a -ne $b ]
+		3.小于：		-lt		[ $a -lt $b ]
+		4.大于		-gr		[ $a -gr $b ]
+		5.大于等于	-ge		[ $a -ge $b ]
+		6.小于等于	-le		[ $a -le $b ]
+5.布尔运算符，以下为布尔运算符及其用法：
+		1.非运算：	!		!false  返回true
+		2.或运算		-o		[ false -o true ]  返回true
+		3.与预算		-a 		[ false -a true ]  返回false
+6.逻辑运算符，以下为逻辑运算符及其用法：
+		1.或运算		||		[[ false || true ]] 返回true
+		2.与预算		&& 		[[ false && true ]] 返回false
+7.字符串运算符，以下为字符串运算符及其用法：
+		1.检测字符串是否相等	==	[ $a == $b ]
+		2.检测字符串是否不相等	!= 	[ $a != $b ]
+		3.检测字符串长度是否为0	-z 	[ -z $a ]
+		4.检测字符串长度是否不为0	-n	[ -n $a ]
+		5.检测字符串是否为空	$	[ $a ]
+8.文件测试运算符，以下为文件测试运算符：
+		1.检测文件是否为目录	-d 	[ -d $file ]
+		2.检测文件是否为普通文件（既不是目录，也不是设备文件）	-f 	[ -f $file ]
+		3.检测文件是否可读	-r	[ -r $file ]
+		4.检测文件是否可写	-w	[ -w $file ]
+		5.检测文件是否可执行	-x	[ -x $file ]
+		6.检测文件是否不为空	-s	[ -s $file ]
+		7.检测文件是否存在	-e	[ -e $flie ]
+
+四：echo显示
+1.显示执行结果使是`xxx`或"$(xxx)",例如：
+		1.echo `date` 或者是 echo "$(date)"  -- 2020年 4月26日 星期日 15时03分52秒 CST
+		2.echo `pwd`  或者是 echo "$(pwd)".  -- /Users/kongling/Desktop/shell3.txt
+2.换行或不换行显示
+		换行： echo "123123\n456456"
+		不换行：echo "123123\c456456"
+3.将结果定向到文件：
+		echo "此内容写入文件test.txt" > test1.txt  -- 将字符串写入到当前工作目录下的test1.txt文件中，若没有该文件则创建该文件。
+4.${var} ,$(cmd1;cmd2;cmd3....), {}获取变量， （)执行命令
+
+五：printf显示
+1.printf不会像echo一样在末尾自动添加换行符，但是自己可以在字符串末尾添加\n。
+2.printf基本语法：printf  format-string  [arguments...],例如:
+		printf "格式字符串测试%d,%s,%.3f"	-- 格式字符串测试1,sss,1.500
+		
+六.test命令
+1.数字测试,例如    test ${a} -eq ${b}	<=>	[ $a -eq $b ]
+2.字符串测试，例如  test ${a} = ${b}	<=>	[ $a == $b ]   
+3.文件测试， 例如   test -e ${f}		<=>	[ -e ${f} ]
+
+七.控制流程
+1.for循环，例如
+	for var in item1 item2 item3 ....
+	do
+		comand1
+		comand2
+		...
+	done
+	或
+	for((assignment;condition:next));do 
+    		command_1;
+    		command_2;
+    		commond_..;
+	done
+	例如：
+	for((i=1;i<=5;i++))	--变量i不需要加a$
+	do
+    		echo "这是第 $i 次调用";
+	done 	
+
+2.while循环，例如
+		int = 1
+		while ((int <= 5))
+		do
+			echo $int
+			let "int++"
+		done
+3.case命令，例如
+		case 值 in
+		模式1)
+    		command1
+    		command2
+    		...
+    		commandN
+	    	;;
+		模式2）
+    		command1
+    		command2
+    		...
+    		commandN
+    		;;
+		esac
+
+4.break,中断循环
+5.continue,中断本次循环
+
+八.函数
+1.函数定义，例如
+	function func_name(){	-- function关键字可选
+		command1
+		command2
+		..
+		return xx  -- 可以不返回值，不写return，则函数返回值为函数最后一条命令的状态
+	}
+2.函数调用，例如
+	func_name
+	或 带参数调用
+	func_name param1 param2 ....
+3.涵数内获取参数
+	function func_name(){	-- function关键字可选
+		command1
+		var=$1 --获取第1个参数， $n表示获取第n个参数
+		..
+	}
+
+4.获取返回值,使用$?, $?表示上一条命令的退出状态或者上一个函数的返回值。仅对其上一条指令负责，一旦函数返回后其返回值没有立即保存入参数，那么其返回值将不再能通过 $? 获得。
+5.涵数内使用$#获取参数个数，$*获取所有参数
+
+九.输入输出重定向
+1.大部分的linux命令都是从标准输入中读取，输出到标准输出中。标准输入、输出即为终端。 例如：echo命令，从终端读取，输出到终端显示。重定向后，输入或输出的来源改变。
+2.输入重定向，例如：
+		cmd < file  --表示从file中读取输入内容
+2.输出重定向，例如：
+		cmd > file  --表示将内容输出到file中
+		cmd >> file --表示将内容以追加到方式输出到file中
+十.文件包含
+文件包含语法如下，例如：
+	 	. path
+		或
+		source path 
+执行以上语句会执行相应的包含文件
+
+linux命令
+1. vi/vim：vi/vim 文件名， 这个命令可以在当前目录下编辑文件，创建后 输入 i ，进入编辑模式， 编辑完成后，点击esc， 然后输入 :wq! ,可保存编辑并退出
+2. chmod：开启 .sh 脚本执行权限 可用 命令 chmod +x ./xxx.sh 。 符号意义 +增加， -减少， =唯一权限 。r读权限， w写权限，x执行权限。
+		也可用数字代替, r=4,w=2,x=1, chmod abd file, abc 分别代表u(用户),g(gruop),o(other)。 a代表所有用户
+		例如 chmod 777 test.sh  <=> chmod ugo+wrx test.sh 代表给所用人赋予 读写执行的权限
+
+3.|为管道符号，执行完上一个的命令后把结果作为参数，执行下一个命令， 例如： conmand1|comand2...
+4.grep 命令用于查找文件里符合条件的字符串。例如
+	cat file.txt|grep -e "aaa" ,读取file.txt文件内容，然后查找该内容中是否有aaa。如果查找到返回0，否则返回1，使用$?获取上一命令的结果
+	或
+	echo "Hello World !" | grep -e Hello
+	echo $?		--0
+	echo "Hello World !" | grep -e Bye
+	echo $?		--1
+用法：
+	grep 选项类型 选项参数值 范本样式 文件或目录
+例如：    grep -A 3 "test_text" *.txt    --查询当前目录下【所有的txt类型】的文件的所有行，输出包含【test_text】的行以及【该行之后的3行】内容
+选项类型有：
+		1.正则表达式 -e	用法 grep -e "123*456\|77*88" test.txt  --查询文件test.txt符合123*456和77*88的所有行并输出
+		grep -e "a\|b" <=> grep -e "a" -e "b"  实现多个条件满足其中一个就匹配成功
+		2.正则表达式 -E	用法 grep -E "123*456|77*88" test.txt  --查询文件test.txt符合123*456和77*88的所有行并输出
+		grep -E "xxx" xx  <=> egrep xxx" xx  用法 egrep "123*456|77*88" test.txt  --查询文件test.txt符合123*456和77*88的所有行并输出
+		3.递归查询目录中符合条件的行 -r	grep -r -e "3*6\|7*8" ./	--递归查询当前目录下符合3*6和7*8的所有行并输出
+		4.列出符合条件的文件名称	-l	grep -r -l -e "3*6\|7*8" ./	--递归查询当前目录下包含3*6和7*8的所有文件名并输出
+		-L 与-l互斥，列出【不符合条件】的文件名称
+		5. -h【-H】,显示行内容之前不标识【标识】所属文件名称
+		6.-v ，不包含匹配文本的所有行
+		7.-n, 在匹配到的行之前输出该行所属行号
+5.find命令，查询指定目录下符合查询条件的文件，输出到标准输出中。
+用法：find 目录路径 选项类型 选项参数值  
+例如：find  .  -name  "*.txt"       --表示在【当前】目录下查询【文件名】为【文件后缀为txt】的所有文件
+选项类型有：
+		1.文件类型	-type 	 例如 
+						一般文件	f
+						目录	d
+		2.文件名		-name
+		3.修改时间	-ctime  -3 三天内修改过的， +3三天以上修改过的
+				-cmin   -3 三分钟内修改过的，+3三分钟外修改过的
+
+		4.空文件		-empty		
+6.awk，AWK是一种处理文本文件的语言，是一个强大的文本分析工具。
+基本用法: 	awk [选项参数] 'script' fliename1 filename2 ...	--单引号中的内容script是awk命令， filename1, filename2..是需要处理的文本所在的文件
+		或
+		awk [选项参数] -f scriptfile filename1 filename2 ...    -- scriptfile文件中的内容是awk命令
+用法：
+		1.【根据命令输出指定文件的相应内容】awk '{[pattern] action}' {filenames}   # 行匹配语句 awk '' 只能用单引号 
+ 		实例：awk '{print $2,$3}' s1.txt	--输出文件【s1.txt】每行的【第2】和【第3】项。 以空格或tab分割
+
+		2.【根据命令和分隔符输出指定文件的相应内容】awk -F  #-F相当于内置变量FS, 指定分割字符
+		实例：awk -F,  '{print $2,$3}' s1.txt	--输出文件【s1.txt】每行的【第2】和【第3】项。 以【,】分割
+		或指定多个分隔符 awk -F '[ ,@]' '{print $2,$3}' s1.txt   -- 以【空格】【,】【@】为分隔符
+
+		3.【设置变量】 awk -v  # 设置变量
+		实例：awk -v a=4 '{print $1,$1+a}' s1.txt	-- 加入某行是 1 2 3，则$1=1,$2=2。a=4,输出为1 5。
+		
+		4.【运算后输出】
+		实例： s1.txt 的文本如下：
+					2 this is a test
+					3 Are you like awk
+					This's a test
+					10 There are orange,apple,mongo
+		实例1:
+			awk '$1>2' s1.txt 	-- 过滤每行首项大于2的行，输出整行
+					3 Are you like awk
+					This's a test
+					10 There are orange,apple,mongo
+		实例2:	awk '$1=2 {print $1,$3}' s1.txt	-- 过滤每行首项等于2，输出该行的1，3项
+					2 is
+		实例3: 	awk '$1>2 && $2=="Are" {print $1,$2,$3}' log.txt    #命令
+					3 Are you
+		5.【内建变量】
+			$n	当前记录的第n个字段，字段间由FS分隔
+			$0	完整的输入记录
+			ARGC	命令行参数的数目
+			ARGIND	命令行中当前文件的位置(从0开始算)
+			ARGV	包含命令行参数的数组
+			CONVFMT	数字转换格式(默认值为%.6g)ENVIRON环境变量关联数组
+			ERRNO	最后一个系统错误的描述
+			FIELDWIDTHS	字段宽度列表(用空格键分隔)
+			FILENAME	当前文件名
+			FNR	各文件分别计数的行号
+			FS	字段分隔符(默认是任何空格)
+			IGNORECASE	如果为真，则进行忽略大小写的匹配
+			NF	一条记录的字段的数目
+			NR	已经读出的记录数，就是行号，从1开始
+			OFMT	数字的输出格式(默认值是%.6g)
+			OFS	输出记录分隔符（输出换行符），输出时用指定的符号代替换行符
+			ORS	输出记录分隔符(默认值是一个换行符)
+			RLENGTH	由match函数所匹配的字符串的长度
+			RS	记录分隔符(默认是一个换行符)
+			RSTART	由match函数所匹配的字符串的第一个位置
+			SUBSEP	数组下标分隔符(默认值是/034)
+		实例1:
+			awk '$2 ~/is/' s1.txt	--正则表达式匹配【第二项】包含is的行，整行输出
+			
+		实例2:	awk '/is/ {print $0}' s1.txt	或 awk '/is/' s1.txt	 --正则表达式匹配【整行】包含is的行，整行输出
+		
+		实例3:	awk '$2 !~/is/' s1.txt 
+			awk '!/is/' s1.txt		--正在表达式模式取反，整行输出
+		
+		实例4:
+			awk '{print NR,FNR,FS,$1,$2}' s1.txt -- 输出当前已读的记录数，相应文件的已读记录数，分割符，第一项，第二项
+		
+		6.【BEING，END】
+			关于awk脚本，我们需要注意两个关键词BEGIN和END。
+			BEGIN{ 这里面放的是执行前的语句 }
+			END {这里面放的是处理完所有的行后要执行的语句 }
+			{这里面放的是处理每一行时要执行的语句}
+		实例：
+			文本文件：
+			$ cat score.txt
+			Marry   2143 78 84 77
+			Jack    2321 66 78 45	
+			Tom     2122 48 77 71
+			Mike    2537 87 97 95
+			Bob     2415 40 57 62
+			
+			awk脚本文件：
+			$ cat cal.awk
+			#!/bin/awk -f
+			#运行前
+			BEGIN {
+			    math = 0
+			    english = 0
+ 		  	    computer = 0
+ 	
+ 			    printf "NAME    NO.   MATH  ENGLISH  COMPUTER   TOTAL\n"
+			    printf "---------------------------------------------\n"
+			}
+			#运行中
+			{
+			    math+=$3
+			    english+=$4
+			    computer+=$5
+			    printf "%-6s %-6s %4d %8d %8d %8d\n", $1, $2, $3,$4,$5, $3+$4+$5
+			}
+			#运行后
+			END {
+			    printf "---------------------------------------------\n"
+			    printf "  TOTAL:%10d %8d %8d \n", math, english, computer
+			    printf "AVERAGE:%10.2f %8.2f %8.2f\n", math/NR, english/NR, computer/NR
+			}
+			
+		
