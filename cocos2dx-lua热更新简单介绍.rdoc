@@ -1,0 +1,357 @@
+= 简单热更新服务器搭建 
+一.HTTP和FTP的区别
+1.字面看
+
+HTTP是Hyper Text Transfer Protocol，超文本传输协议；
+FTP是File Transfer Protocol,文件传输协议；
+简单说HTTP是面向网页的，而FTP是面向文件的。
+2.深入理解
+
+1.FTP
+(1)FTP比HTTP复杂
+FTP和HTTP一样都是Internet上广泛使用的协议，用来在两台计算机之间互相传送文件。相比于HTTP，FTP协议要复杂得多。
+复杂的原因，是因为FTP协议要用到两个TCP连接，一个是命令链路，用来在FTP客户端与服务器之间传递命令；
+另一个是数据链路，用来上传或下载数据。
+(2)FTP协议有两种工作方式：PORT方式和PASV方式，中文意思为主动式和被动式。
+PORT（主动）方式的连接过程是：客户端向服务器的FTP端口（默认是21）发送连接请求，服务器接受连接，建立一条命令链路。
+当需要传送数据时，客户端在命令链上用PORT命令告诉服务器：“我打开了XXXX端口，你过来连接我”。
+于是服务器从20端口向客户端的XXXX端口发送连接请求，建立一条数据链路来传送数据。
+PASV（被动）方式的连接过程是：客户端向服务器的FTP端口（默认是21）发送连接请求，服务器接受连接，建立一条命令链路。
+当需要传送数据时，服务器在命令链上用PASV命令告诉客户端：“我打开了XXXX端口，你过来连接我”。
+于是客户端向服务器的XXXX端口发送连接请求，建立一条数据链路来传送数据。
+ 
+2.HTTP
+HTTP协议是基于请求/响应范式的（相当于客户机/服务器）。一个客户机与服务器建立连接后，发送一个请求给服务器，
+请求方式的格式为：统一资源标识符（URL）、协议版本号，后边是MIME（关于MIME，看百度百科里是这样解释的
+http://baike.baidu.com/view/160611.htm）信息包括请求修饰符、客户机信息和可能的内容。
+服务器接到请求后，给予相应的响应信息，其格式为一个状态行，包括信息的协议版本号、一个成功或错误的代码，
+后边是MIME信息包括服务器信息、实体信息和可能的内容。
+二.python实现两种文件共享方式
+1.Http共享文件
+
+使用Python下的SimpleHTTPServer共享文件。
+ 
+命令行下输入下面的语句，即可将当前目录下的文件共享出去。
+python -m SimpleHTTPServer 80   
+ 
+Python下内置了一个Http服务器，只需要上面的一句话即可以启动该服务器，默认的端口是8000。
+启动后，可以在浏览器中输入“localhost:8000”即可查看当前文件夹下的文件，点击即可进行下载。
+如果你当前的目录下有index.html文件，那么在浏览器中看到的应该是index.html中内容。
+2.Ftp共享文件
+
+Python并没有内置一个FTP服务器，所以需要第三方模块的支持。可以使用pyftpdlib
+在命令行输入下面的语句进行安装：
+sudo pip install pyftpdlib(pip是一个安装和管理 Python 包的工具,是easy_install的替代品。)  
+ 
+在选定目录的命令行下输入下面的命令即可将该目录共享出去。
+python -m pyftpdlib -p 21  
+ 
+其默认的端口是21，可以修改成其他的端口。
+启动后，可以在浏览器中输入“ftp://localhost:21”即可查看当前文件夹下的文件。
+
+= cocos2dx-lua 热更新测试代码
+首先，客户端向服务器发送请求，服务器告诉客户端，没更新啦，你是最新的啦，那就直接跳过喽。但如果是告诉你有更新，那就要告诉我哪些需要更新对吧，你可能需要更新的东西，放在一个文件里，一并发送给客户端，客户端拿到这个文件，就一个一个去向服务器要，最后把要更新的内容都下载到本地了。但是如果下载的资源之前已经存在，会不会出问题啊？
+我们以win32平台为例
+
+
+luagame4.png
+这个是工程目录
+
+而对于下载目录，一般是
+
+C:\Users\user\AppData\Local\LuaGame4
+但是这又有一个问题，平时我们调用资源都是直接调工程目录下啊，这会你下载到c盘里了，怎么能调用到？
+这就涉及到一个优先级的问题了，比如一张图片它的路径是img/sample.png，在工程目录下的全路径就是
+E/LuaGame4/res/img/sample.png ，那我们在代码里通常是这么调用的
+
+local sp = cc.Sprite:create("img/sample.png")
+self:addChild(sp)
+回到之前的问题，现在要更新这张图片，上面说的是下载到
+
+C:\Users\user\AppData\Local\LuaGame4
+这个目录下，那我们要用同样的代码就能调用到新资源，只要将这个目录下的资源路径和我们工程下一致，然后将C:\Users\user\AppData\Local\LuaGame4 加入搜索路径，并且将它优先级设置最高，那么就可以调用到了。
+
+具体实现
+知道了它的大致工作过程，再来实际操作下，估计就会很清晰了。
+在cocos2dx中，使用的是AssetsManagerEx这个类。而对于AssetsManager这个类是不推荐使用的，这个类有很多东西都没考虑到，我们就不深究了。
+先上代码
+
+local writablePath = cc.FileUtils:getInstance():getWritablePath()
+    local storagePath = writablePath .. "new_version"
+--将下载目录的src和res作为优先级最高的搜索目录，这样才能保证下载的能覆盖原来的代码
+cc.FileUtils:getInstance():addSearchPath(storagePath.."/src/",true)
+    cc.FileUtils:getInstance():addSearchPath(storagePath.."/res/",true)
+
+    -- 创建AssetsManagerEx对象
+    local assetsManagerEx = cc.AssetsManagerEx:create("src/version/project.manifest", storagePath)
+    assetsManagerEx:retain()
+
+
+    -- 设置下载消息listener
+    local function handleAssetsManagerEx(event)
+        if (cc.EventAssetsManagerEx.EventCode.ALREADY_UP_TO_DATE == event:getEventCode()) then
+            print("已经是最新版本了，进入游戏主界面")
+            -- app:enterScene("GameScene")
+        end
+
+        if (cc.EventAssetsManagerEx.EventCode.NEW_VERSION_FOUND == event:getEventCode()) then
+            print("发现新版本，开始升级")
+        end
+
+
+        if (cc.EventAssetsManagerEx.EventCode.UPDATE_PROGRESSION == event:getEventCode()) then
+            print("更新进度=" .. event:getPercent())
+        end
+
+
+        if (cc.EventAssetsManagerEx.EventCode.UPDATE_FINISHED == event:getEventCode()) then
+            print("更新完毕，重新启动")
+            app:run()
+        end
+
+        if (cc.EventAssetsManagerEx.EventCode.ERROR_NO_LOCAL_MANIFEST == event:getEventCode()) then
+            print("发生错误:本地找不到manifest文件")
+        end
+
+        if (cc.EventAssetsManagerEx.EventCode.ERROR_DOWNLOAD_MANIFEST == event:getEventCode()) then
+            print("发生错误:下载manifest文件失败")
+        end
+
+        if (cc.EventAssetsManagerEx.EventCode.ERROR_PARSE_MANIFEST == event:getEventCode()) then
+            print("发生错误:解析manifest文件失败")
+        end
+
+        if (cc.EventAssetsManagerEx.EventCode.ERROR_UPDATING == event:getEventCode()) then
+            print("发生错误:更新失败")
+        end
+    end
+
+
+    local dispatcher = cc.Director:getInstance():getEventDispatcher()
+    local eventListenerAssetsManagerEx = cc.EventListenerAssetsManagerEx:create(assetsManagerEx, handleAssetsManagerEx)
+    dispatcher:addEventListenerWithFixedPriority(eventListenerAssetsManagerEx, 1)
+
+
+    -- 检查版本并升级
+    assetsManagerEx:update()
+先从
+
+-- 创建AssetsManagerEx对象
+ local assetsManagerEx = cc.AssetsManagerEx:create("src/version/project.manifest", storagePath)
+开始看，首先构建一个AssetsManagerEx:create对象，需要传入两个参数
+
+project.manifest路径
+下载路径
+这里我传入的project.manifest路径是src/version/project.manifest
+
+manifest.png
+这是个什么文件呢，打开看看
+
+{
+    "packageUrl" : "http://localhost:8080/examples/servlets/update/assets/",
+    "remoteManifestUrl" : "http://localhost:8080/examples/servlets/update/version/project.manifest",
+    "remoteVersionUrl" : "http://localhost:8080/examples/servlets/update/version//version.manifest",
+    "version" : "1.0.0",
+    "engineVersion" : "3.x dev",
+
+    "assets" : {
+        "res/blocks.png" : {
+            "md5" : "...."
+        }
+    },
+    
+    "searchPaths" : [
+    ]
+}
+这是一个json格式的文件，解释下每个key的意思
+
+key	作用
+packageUrl	更新包的url
+remoteManifestUrl	project.manifest的url
+remoteVersionUrl	这个文件和project.manifest一个意思，但是比project.manifest更简洁，待会说
+version	版本，是否需要更新就是看他了
+engineVersion	引擎版本，写不写无所谓
+assets	所有的文件名和他的md5值，在更新的时候会比对本地和远程的md5值，不一致则会更新，否则不更新
+来看下version.manifest写了点啥
+
+{
+    "packageUrl" : "http://localhost:8080/examples/servlets/update/assets/",
+    "remoteManifestUrl" : "http://localhost:8080/examples/servlets/update/version/project.manifest",
+    "remoteVersionUrl" : "http://localhost:8080/examples/servlets/update/version//version.manifest",
+    "version" : "1.0.2",
+    "engineVersion" : "3.x dev",
+}
+卧槽，这不就是project.manifest的简化版吗？
+卧槽，你怎么知道！
+既然是简化版，那为什么要弄两个文件，不直接用更详细的project.manifest呢？
+
+这是出于更新流量的考虑，我们在工程目录下会放一个关于整个项目资源的project.manifest的清单文件，在更新的时候，AssetsManagerEx会拿到其中的remoteVersionUrl，先将version.manifest下载下来，比对version，判断是否要更新，如果要更新，再下载较为详细的project.manifest文件，这样做的好处，就是当你的工程比较大的时候，对应的project.manifest也会比较大，如果每次都直接去下载project.manifest，那么就会造成不必要的让费了。
+
+创建完AssetsManagerEx对象之后，要为它注册监听事件，方便我们对更新情况进行把握，比如进度，比如是否出错等等。对于对应的事件，在代码中已经写的很清楚了，这里就不再说了。
+
+之后调用assetsManagerEx:update()开始更新。
+
+完了。
+啊？完了？
+啊，完了啊
+你妹啊
+
+好吧，我知道你还是有点懵逼，这TM我这服务器怎么搞？我这本地要弄些啥啊。。莫得关系，往下看
+
+需要准备的文件
+客户端
+对于客户端而言，就是一份project.manifest文件，它记录了所有资源一级代码的md5，方便在第一次更新的时候做比对，一旦有过一次更新之后，以后就不会用这个文件了，而是用下载目录下的project.manifest，不然的话更新了还是白更新
+服务器
+服务器上，需要三样东西project.manifest，version.manifest，以及更新包。
+搞个简单的tomcat
+热更新用的http协议，而写一个http后台，比较容易的方法就是搞个tomcat，不会的朋友可以看下怎么搭建，不算难，有点java基础的话，看两盘文章就知道怎么用了
+
+tomcat.png
+这是我tomcat的目录，我建了一个update文件夹，下面有两个子文件夹
+
+version
+version.png
+assets
+assets.png
+文章中就放了一个资源的路径res/blocks.png，他的url就是packageUrl和res/blocks.png做拼接，也就是http://localhost:8080/examples/servlets/update/assets/res/blocks.png。
+
+这么一放，就有点感觉了吧？服务器上的目录和你工程目录完全一致，这样的话，只要把下载目录加入到搜索路径里，对于一样的相对路径，就能在下载目录中找到了。
+
+= cocos2dx 热更新原理
+Cocos2d-x Lua中的热更机制主要是通过AssetsManagerEx来实现的。
+
+传统的热更方式
+
+传统PC的方式是将差异文件打包成一个压缩包，客户端根据大版本差异，将对应的压缩包下载到本地后解压覆盖。这种做法的好处在于下载一个文件会比较快。缺点在于当客户端版本比较多的时候，升级压缩包会变得很多，进而难以维护。其次是如果压缩包体积过大，解压时间会比较长，而且不容易制作进度条，导致程序感觉被卡住了。
+
+AssetsManagerEx采用比较所有文件是否一致的方式，首先需要将所有文件的md5散列表计算出来，然后生成对应格式的manifest文件。这种方式更类似网页加载的方式，即网页显示时若本地有缓存则比对缓存与服务器是否一致，若相同则使用本地缓存，若不一直则下载更新。这样服务器只需要保存一个完整的最新客户端。如果更新了某个文件，只需要替换服务器上对应的文件，然后修改文件中的版本号和文件的md5散列码。此种做法的优点在于没有解压缩的过程，缺点是更新文件比较多的时候会略慢，而且有一定几率的下载失败。
+
+热更新基本原理
+
+不能更新主程序，只能更新资源和脚本文件
+C++生成的主程序只能通过升级安全包，其他文件可通过HTTP动态下载到手机中，然后程序内部重新执行入口函数，以达到更新代码逻辑和资源图片的效果，所以C++代码在程序上线前必须保证最完善。
+下载的文件会存放到手机的可写入目录中，该目录中文件的优先级必须高于程序原始安装目录。
+以HTTP方式下载后的文件并不能直接覆盖安装程序所在目录中的同名文件，因为权限不足。由于Lua使用动态加载，只要在搜索路径中将可写入目录的优先级设置为最高，那么即使两个目录中存在同名文件，程序也会优先使用最新下载的文件。AssetsManagerEx类的create()方法中会见用户定义的可写入目录设置为最高优先级。
+资源文件和脚本文件被加载后，即使程序在运行中文件也可以直接被删除，以确保文件可以被动态替换。
+手机本地和服务器中保存了程序中所有文件的md5散列码列表，通过比对两个文件中md5散列码中，过滤出需要更新的文件，并进行下载。
+热更新的实现流程
+
+开发可以遍历项目中所有文件并生成对应版本的version.manifest和project.manifest文件的工具
+version.manifest和project.manifest的格式本质上是一致的，version.manifest中只包含大版本号信息，而project.manifest包含version.manifest中所有内容和所有项目文件信息，这样做的好处在于当项目文件很多的时候，project.manifest会比较大，所以单独分割出来一个version.manifest来比较大版本，如果大版本不一致就不用下载project.manifest。
+
+对于项目src目录下的cocos、framework等库文件，如果确定不会修改就不用生成到project.manifest文件中，如果确实需要修改某个文件，可以手动加入到project.manifest文件中。建议不要修改，避免日后维护困难。
+
+/*version.manifest*/
+{
+  //服务器中存放完整最新版本程序的目录位置，即项目的根目录。
+  "packageUrl":"http://192.168.0.164/update/files/",
+  //服务器存放version.manifest文件的URL地址
+  "remoteVersionUrl":"http://192.168.0.164/update/version/version.manifest",
+  //服务器存放project.manifest文件的URL地址
+  "remoteManifestUrl":"http://192.168.0.164/update/version/project.manifest",
+  //程序版本号，采用 "大版本.日期.小版本" 格式
+  "version":"1.20190112.01",
+  //客户端引擎版本
+  "engineVersion":"Cocos2d-lua v3.3 Final"
+}
+
+/*project.manifest*/
+{
+  //服务器中存放完整最新版本程序的目录位置，即项目的根目录。
+  "packageUrl":"http://192.168.0.164/update/files/",
+  //服务器存放version.manifest文件的URL地址
+  "remoteVersionUrl":"http://192.168.0.164/update/version/version.manifest",
+  //服务器存放project.manifest文件的URL地址
+  "remoteManifestUrl":"http://192.168.0.164/update/version/project.manifest",
+  //程序版本号，采用 "大版本.日期.小版本" 格式
+  "version":"1.20190112.01",
+  //客户端引擎版本
+  "engineVersion":"Cocos2d-lua v3.3 Final",
+  //资源文件
+  "assets":{
+    "res/images/test.png":{
+      "md5":"e6aed0272011da3039ccc1008040cbce"
+    },
+    //资源文件为zip且compress为true表示，更新完毕后进行解压。
+    //由于zip文件是独立打包计算md5，日后的比较必须以zip包做比较，实际维护起来比较麻烦，不建议使用。
+    "res/zip/test.zip":{
+      "md5":"e6aed0272011da3039ccc1008040cbce",
+      "compressed":true
+    }
+  }
+}
+将project.manifest文件存放到主程序某个目录（version）中并制作安装包。
+srv/version/project.manifest
+将version.manifest存放到remoteVersionUrl对应服务器指定目录下
+将project.manifest存放到remoteManifestUrl对应服务器指定目录下
+将最新的代码存放到packageUrl对应服务器指定目录下，注意要与assets下的路径对应。
+客户端执行更新代码
+
+    -- 设置新文件保存路径
+    local writablePath = cc.FileUtils:getInstance():getWritablePath()
+    local storagePath = writablePath.."version"
+
+    -- 创建资源管理器
+    local file = "src/version/project.manifest"
+    local assetsManagerEx = cc.AssetsManagerEx:create(file, storagePath)
+    assetsManagerEx:retain()
+
+    -- 监听下载消息
+    local function assetsManagerExHandler(event)
+        local eventCode = event:getEventCode()
+        local assetManagerExCode = cc.EventAssetsManagerEx.EventCode
+        if eventCode == assetManagerExCode.ALREADY_UP_TO_DATE then
+            print("当前已是最新版本")
+            -- 进入游戏主界面
+        end
+        if eventCode == assetManagerExCode.NEW_VERSION_FOUND then
+            print("发现新版本，开始升级...")
+        end
+        if eventCode == assetManagerExCode.PROGRESSION then
+            print("当前更新进度为"..event.getPercent())
+        end
+        if eventCode == assetManagerExCode.UPDATE_FINISHED then
+            print("更新完毕，准备重启...")
+            app:run()
+        end
+        if eventCode == assetManagerExCode.ERROR_NO_LOCAL_MANIFEST then
+            print("热更失败：本地不存在manifest文件")
+        end
+        if eventCode == assetsManagerExCode.ERROR_DOWNLOAD_MANIFEST then
+            print("热更失败：manifest文件下载失败")
+        end
+        if eventCode == assetsManagerExCode.ERROR_PARSE_MANIFEST then
+            print("热更失败：manifest文件解析失败")
+        end
+        if eventCode == assetManagerExCode.ERROR_UPDATING then
+            print("热更失败：文件更新失败")
+        end
+    end
+
+    local dispatcher = cc.Director:getInstance():getEventDispatcher()
+    local eventListenerAssetsManagerEx = cc.EventListenerAssetsManagerEx:create(assetsManagerEx, assetsManagerExHandler)
+    dispatcher:addEventListenerWithFixedPriority(eventListenerAssetsManagerEx, 1)
+
+    -- 检查版本并升级
+    assetsManagerEx:update()
+
+使用注意
+    storagePath路径一旦确认不能更换否则会造成多版本混乱
+    assetsManagerEx:retain()缺失会造成下载失败
+    如果文件是只读的，会造成更新失败。
+    客户端获取当前本地版本
+    local localManifest = assetsManagerEx:getLocalManifest()
+    local version = localManifest:getVersion()
+
+热更新中涉及的几个目录
+    有缓存目录，一般是 writepath + "/update/"
+    有临时目录 一般是 writepath + "/update_temp/"
+    有本地目录 一般是app内部目录。 android 就是在 assets目录下
+
+    热更新启动。 会读 app 内部中记录的版本 【先缓存目录找。找不到再到app内部找】
+    热更新资源更新时会把下载下的资源放到临时目录。更新完毕，会把这个目录下文件copy到 缓存目录，然后再删除临时目录。
+
+    本地目录中的版本大于等于缓存目录中的版本 会删除整个缓存目录
+    如果缓存的版本 比 本地的版本大, 会把缓存的版本当作 本地版本。 然后和远程的做比较
+    如果本地版本 大于等于远程版本 会删除整个临时目录。【如果有缓存版本，这里的本地版本就是缓存版本缓存目录千万不要放 热更新无关的东西，比如数据存储，截图图片，头像缓存等
+    很容易导致 整个目录删除， 也就是说没有记录在project.manifest 中的文件也会被删除。 目前引擎做法，直接删除 简单粗暴。 得使用的时候小心一点就是了
