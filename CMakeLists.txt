@@ -141,9 +141,15 @@ set(APP_SRC ${GAME_HEADER} ${GAME_SOURCE})
 if(NOT ANDROID)
     add_executable(${APP_NAME} ${APP_SRC})
 else()
-    add_library(${APP_NAME} SHARED ${APP_SRC})
-    add_subdirectory(${COCOS2DX_ROOT_PATH}/cocos/platform/android ${ENGINE_BINARY_PATH}/cocos/platform)
+    #使用指定的代码文件(APP_SRC)生成一个动态库（SHARED）,库名是(APP_NAME)表示的值
+    add_library(${APP_NAME} SHARED ${APP_SRC}) 
+
+    #添加一个子构建项,prama1是一个包含cmakelist.txt和代码文件的目录，param2是输出目录
+    add_subdirectory(${COCOS2DX_ROOT_PATH}/cocos/platform/android ${ENGINE_BINARY_PATH}/cocos/platform) 
+
+    #链接param2库到param1库，--whole-archive是选项参数，表示将其后的静态库的函数和变量输出到动态库，--no-whole-archive是取消前者设置。-Wl是让编译器识别前面的选项参数
     target_link_libraries(${APP_NAME} -Wl,--whole-archive cpp_android_spec -Wl,--no-whole-archive)
+    
     add_subdirectory(${COCOS2DX_ROOT_PATH}/cocos/scripting/lua-bindings/proj.android ${ENGINE_BINARY_PATH}/cocos/lua-android)
     target_link_libraries(${APP_NAME} -Wl,--whole-archive lua_android_spec -Wl,--no-whole-archive)
 endif()
