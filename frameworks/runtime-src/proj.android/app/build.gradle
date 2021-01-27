@@ -13,7 +13,7 @@ android {
         minSdkVersion PROP_MIN_SDK_VERSION
         targetSdkVersion PROP_TARGET_SDK_VERSION
         versionCode 1
-        versionName "1.0"
+        versionName "1.0.0"
 
         externalNativeBuild {
             if (PROP_BUILD_TYPE == 'ndk-build') {
@@ -51,7 +51,7 @@ android {
     sourceSets.main {
         java.srcDir "src"
         res.srcDir "res"
-        jniLibs.srcDir "libs"
+        jniLibs.srcDir "jniLibt"
         manifest.srcFile "AndroidManifest.xml"
         assets.srcDir "../../../../res/"
         assets.srcDir "../../../../src/"
