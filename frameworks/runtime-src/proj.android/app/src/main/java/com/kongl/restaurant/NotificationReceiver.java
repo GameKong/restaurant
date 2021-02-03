@@ -33,7 +33,7 @@ public class NotificationReceiver extends BroadcastReceiver {
         NotificationCompat.Builder builder = new NotificationCompat.Builder(context, AppActivity.notify_channel)
                 // @必需设置的内容
                 // 设置通知图标
-                .setSmallIcon(R.mipmap.ic_launcher)
+                .setSmallIcon(R.mipmap.icon_notify)
 
                 // @不是必需设置的内容
                 // 设置通知标题
