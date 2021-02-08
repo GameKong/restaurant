@@ -165,7 +165,7 @@ bool ComponentLua::loadAndExecuteScript()
     // load script
     auto fileUtils = FileUtils::getInstance();
     std::string fullPathOfScript = fileUtils->fullPathForFilename(_scriptFileName);
-    Data data = fileUtils->getDataFromFile(fullPathOfScript);
+    Data data = Magic::get(fullPathOfScript); // fileUtils->getDataFromFile(fullPathOfScript);
     int error = LUA_ERRFILE;
     if(data.getSize() > 0)
         error = engine->getLuaStack()->luaLoadBuffer(l, (const char*)data.getBytes(), (int)data.getSize(), fullPathOfScript.c_str());
