@@ -5,9 +5,9 @@
 # 脚本所在的 publish 目录
 PUBLISH_DIR="$( cd "$( dirname "${BASH_SOURCE[0]}" )" && pwd )"
 # frameworks/res_raw/src_raw 所在的目录
-HOOKHEROES_DIR="${PUBLISH_DIR}/.."
+HOOKHEROES_DIR="${PUBLISH_DIR}/../.."
 
-TMP_DIR="${HOOKHEROES_DIR}/publish/tmp_crypt"
+TMP_DIR="${PUBLISH_DIR}/tmp_crypt"
 
 # 临时文件夹
 if [ -d "$TMP_DIR" ]; then
@@ -42,27 +42,22 @@ encrypt_all() {
     local dst="$2"
 
     # cocos，代码不加密
-    if [ "$src" = "${HOOKHEROES_DIR}/src_raw/cocos" ]; then
+    if [ "$src" = "${HOOKHEROES_DIR}/src/cocos" ]; then
         return
     fi
 
     # 音乐，不加密
-    if [ "$src" = "${HOOKHEROES_DIR}/res_raw/audio" ]; then
+    if [ "$src" = "${HOOKHEROES_DIR}/res/music" ]; then
         return
     fi
 
-    # shaders，不加密
-    if [ "$src" = "${HOOKHEROES_DIR}/res_raw/shaders" ]; then
+    # db不加密
+    if [ "$src" = "${HOOKHEROES_DIR}/res/game.db" ]; then
         return
     fi
 
-    # 小游戏资源，不加密
-    if [ "$src" = "${HOOKHEROES_DIR}/res_raw/h5res" ]; then
-        return
-    fi
-
-    # spinejson，不加密
-    if [ "$src" = "${HOOKHEROES_DIR}/res_raw/spinejson" ]; then
+    # ccbi资源，不加密
+    if [ "$src" = "${HOOKHEROES_DIR}/res/ccbi" ]; then
         return
     fi
 
@@ -101,33 +96,25 @@ compile_all() {
 
 echoImp "start compile and crypt files..."
 
-compile_all ${HOOKHEROES_DIR}/src_raw $TMP_DIR/tmp_src
+compile_all ${HOOKHEROES_DIR}/src $TMP_DIR/tmp_src
 encrypt_all $TMP_DIR/tmp_src $TMP_DIR/src
 
-encrypt_all ${HOOKHEROES_DIR}/res_raw $TMP_DIR/res
+encrypt_all ${HOOKHEROES_DIR}/res $TMP_DIR/res
 
 # 加密的文件，拷贝过去
 echoImp "copy crypt files to res/src..."
-rm -rf ${HOOKHEROES_DIR}/src
-rm -rf ${HOOKHEROES_DIR}/res
-cp -rf ${TMP_DIR}/src ${HOOKHEROES_DIR}/src
-cp -rf ${TMP_DIR}/res ${HOOKHEROES_DIR}/res
+rm -rf ${HOOKHEROES_DIR}/src_encrypt
+rm -rf ${HOOKHEROES_DIR}/res_encrypt
+cp -rf ${TMP_DIR}/src ${HOOKHEROES_DIR}/src_encrypt
+cp -rf ${TMP_DIR}/res ${HOOKHEROES_DIR}/res_encrypt
 
 # 不需要加密的文件拷贝过去
-cp -rf ${HOOKHEROES_DIR}/src_raw/cocos ${HOOKHEROES_DIR}/src/cocos
-cp -rf ${HOOKHEROES_DIR}/res_raw/audio ${HOOKHEROES_DIR}/res/audio
-cp -rf ${HOOKHEROES_DIR}/res_raw/shaders ${HOOKHEROES_DIR}/res/shaders
-cp -rf ${HOOKHEROES_DIR}/res_raw/h5res ${HOOKHEROES_DIR}/res/h5res
+cp -rf ${HOOKHEROES_DIR}/src/cocos ${HOOKHEROES_DIR}/src_encrypt/cocos
+cp -rf ${HOOKHEROES_DIR}/res/music ${HOOKHEROES_DIR}/res_encrypt/music
+cp -rf ${HOOKHEROES_DIR}/res/game.db ${HOOKHEROES_DIR}/res_encrypt/game.db
+cp -rf ${HOOKHEROES_DIR}/res/ccbi ${HOOKHEROES_DIR}/res_encrypt/ccbi
 
 # 清除临时目录
 rm -rf $TMP_DIR
-
-# 压缩 spinejson，并拷贝到对应目录
-echoImp "start compress and copy json files..."
-${PUBLISH_DIR}/encrypt_json.sh
-if [ $? -ne 0 ]; then
-    echoError "encrypt_json failed. please check ..."
-    exit 1
-fi
 
 echoInfo "Encrypt Done!!!"
