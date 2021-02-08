@@ -96,9 +96,10 @@ compile_all() {
 
 echoImp "start compile and crypt files..."
 
-compile_all ${HOOKHEROES_DIR}/src $TMP_DIR/tmp_src
-encrypt_all $TMP_DIR/tmp_src $TMP_DIR/src
+# compile_all ${HOOKHEROES_DIR}/src $TMP_DIR/tmp_src
+# encrypt_all $TMP_DIR/tmp_src $TMP_DIR/src
 
+encrypt_all ${HOOKHEROES_DIR}/src $TMP_DIR/src
 encrypt_all ${HOOKHEROES_DIR}/res $TMP_DIR/res
 
 # 加密的文件，拷贝过去
