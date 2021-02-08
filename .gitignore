@@ -6,3 +6,5 @@ frameworks/runtime-src/proj.android/app/build
 frameworks/runtime-src/proj.android/app/release
 frameworks/runtime-src/proj.android/app/.cxx
 frameworks/cocos2d-x/cocos/platform/android/libcocos2dx/build
+src_encrypt
+res_encrypt
