@@ -30,7 +30,7 @@
 
 // #define USE_AUDIO_ENGINE 1
 // #define USE_SIMPLE_AUDIO_ENGINE 1
-
+ #define CC_LUA_CRYPT_ENABLED 1
 #if USE_AUDIO_ENGINE && USE_SIMPLE_AUDIO_ENGINE
 #error "Don't use AudioEngine and SimpleAudioEngine at the same time. Please just select one in your game!"
 #endif
@@ -104,8 +104,8 @@ bool AppDelegate::applicationDidFinishLaunching()
 //    stack->setXXTEAKeyAndSign("2dxLua", strlen("2dxLua"), "XXTEA", strlen("XXTEA"));
 
     //register custom function
-    //LuaStack* stack = engine->getLuaStack();
-    //register_custom_function(stack->getLuaState());
+//    LuaStack* stack = engine->getLuaStack();
+//    register_custom_function(stack->getLuaState());
     
 #if CC_64BITS
     FileUtils::getInstance()->addSearchPath("src/64bit");
