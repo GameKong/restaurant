@@ -106,6 +106,12 @@ bool FileUtilsAndroid::init()
     return FileUtils::init();
 }
 
+std::string FileUtilsAndroid::getBaseApkPath()
+{
+    std::string cpath(getApkPath());
+    return cpath;
+}
+
 std::string FileUtilsAndroid::getNewFilename(const std::string &filename) const
 {
     std::string newFileName = FileUtils::getNewFilename(filename);

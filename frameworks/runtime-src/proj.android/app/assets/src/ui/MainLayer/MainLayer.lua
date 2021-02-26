@@ -794,6 +794,16 @@ end
 function MainLayer:onTouchHead()
     TipLayer.showTip("暂未开放")
     Audio.PlayEffect("music/btn.wav")
+    print("________1")
+    print(package.cpath)
+    print("________1")
+
+    pathlib.addpath()
+    print("________2")
+    print(package.cpath)
+    print("________2")
+
+    TipLayer.showTip("暂未开放2")
 end
 
 -- 点击升级
@@ -803,20 +813,29 @@ function MainLayer:onTouchUp()
 end
 -- 点击添加金币
 function MainLayer:onTouchAddGold()
-    local className = "org/cocos2dx/lua/AppActivity"
-    local methodName = "test"
-    local args = {}
-    local sig = "()V"
-    local isOk,errCode = luaj.callStaticMethod(className,methodName, args,sig)
-    if not isOk then
-        print("aaaaaaaaaerrCode:"..errCode)
-    else
-        print(44444)
-    end
-    print(isOk)
-    print(errCode)        
+    print("________1")
+    local a = require "mt.t"
+    print("________1")
+    print(a)
+    print(mt)
+    print("________2")
+    TipLayer.showTip(tosring(a))
+    a.sleep()
 
-    Audio.PlayEffect("music/btn.wav")
+    -- local className = "org/cocos2dx/lua/AppActivity"
+    -- local methodName = "test"
+    -- local args = {}
+    -- local sig = "()V"
+    -- local isOk,errCode = luaj.callStaticMethod(className,methodName, args,sig)
+    -- if not isOk then
+    --     print("aaaaaaaaaerrCode:"..errCode)
+    -- else
+    --     print(44444)
+    -- end
+    -- print(isOk)
+    -- print(errCode)        
+
+    -- Audio.PlayEffect("music/btn.wav")
 end
 
 -- 点击添加能量

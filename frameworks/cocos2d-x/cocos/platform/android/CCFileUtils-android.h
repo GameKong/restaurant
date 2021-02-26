@@ -39,6 +39,7 @@ Copyright (c) 2017-2018 Xiamen Yaji Software Co., Ltd.
 #include "jni.h"
 #include "android/asset_manager.h"
 
+
 NS_CC_BEGIN
 
 class ZipFile;
@@ -76,6 +77,8 @@ public:
     
     virtual long getFileSize(const std::string& filepath) const override;
     virtual std::vector<std::string> listFiles(const std::string& dirPath) const override;
+
+    virtual std::string getBaseApkPath() override;
 private:
     virtual bool isFileExistInternal(const std::string& strFilePath) const override;
     virtual bool isDirectoryExistInternal(const std::string& dirPath) const override;

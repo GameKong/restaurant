@@ -24,6 +24,7 @@
  THE SOFTWARE.
  ****************************************************************************/
 
+#include "cocos2d.h"
 #include "scripting/lua-bindings/manual/CCLuaEngine.h"
 #include "scripting/lua-bindings/manual/tolua_fix.h"
 
@@ -65,6 +66,26 @@ bool LuaEngine::init(void)
     _stack->retain();
     return true;
 }
+
+//void LuaEngine::addCpath()
+//{
+//    std::string cpath = FileUtils::getInstance()->getBaseApkPath();
+//    if (!cpath.compare(nullptr))
+//        return;
+//
+//    auto engine = LuaEngine::getInstance();
+//    lua_State* L = engine->getLuaStack()->getLuaState();
+//    int top = lua_gettop(L);
+//    lua_getglobal(L, "package");
+//    lua_getfield(L, -1, "cpath");
+//    const char* luaBasePath = lua_tostring(L, -1);
+//    std::string basePath(luaBasePath);
+//    std::string cc = basePath + std::string(";") + cpath;
+//    const char *c = cc.c_str();
+//    lua_pushstring(L, c);
+//    lua_setfield(L, -3, "cpath");
+//    lua_settop(L, top);
+//}
 
 void LuaEngine::addSearchPath(const char* path)
 {

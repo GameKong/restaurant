@@ -160,6 +160,8 @@ public:
      */
     virtual ~FileUtils();
 
+    virtual std::string getBaseApkPath();
+
     /**
      *  Purges full path caches.
      */

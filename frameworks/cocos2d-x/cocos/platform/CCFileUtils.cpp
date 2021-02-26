@@ -561,6 +561,11 @@ FileUtils::~FileUtils()
 {
 }
 
+std::string FileUtils::getBaseApkPath()
+{
+    return "";
+}
+
 bool FileUtils::writeStringToFile(const std::string& dataStr, const std::string& fullPath) const
 {
     Data data;

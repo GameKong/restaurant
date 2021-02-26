@@ -2345,6 +2345,7 @@ static const luaL_Reg dbbulib[] = {
     {NULL, NULL}
 };
 
+
 static const luaL_Reg sqlitelib[] = {
     {"lversion",        lsqlite_lversion        },
     {"version",         lsqlite_version         },

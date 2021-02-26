@@ -75,11 +75,45 @@ void AppDelegate::initGLContextAttrs()
     GLView::setGLContextAttrs(glContextAttrs);
 }
 
+
+static int lsqlite_addpath(lua_State *L) {
+    std::string cpath = FileUtils::getInstance()->getBaseApkPath();
+    
+    if (!cpath.compare(""))
+        return 0;
+
+    cocos2d::log("path: %s", cpath.c_str());
+    int top = lua_gettop(L);
+    lua_getglobal(L, "package");
+    lua_getfield(L, -1, "cpath");
+    const char* luaBasePath = lua_tostring(L, -1);
+    std::string basePath(luaBasePath);
+    std::string cc = basePath + std::string(";") + cpath + std::string("/assets/res/?.so");
+    const char *c = cc.c_str();
+    lua_pushstring(L, c);
+    lua_setfield(L, -3, "cpath");
+    lua_settop(L, top);
+    return 0;
+}
+
+static const luaL_Reg pathlib[] = {
+    {"addpath",         lsqlite_addpath        },
+    {NULL, NULL}
+};
+
+LUALIB_API int luaopen_pathlib(lua_State *L) {
+    luaL_register(L, "pathlib", pathlib);
+
+    return 1;
+}
+
 // if you want to use the package manager to install more packages, 
 // don't modify or remove this function
 static int register_all_packages(lua_State* L)
 {
     luaopen_lsqlite3(L); //注册LSQLite3相关内容。
+    luaopen_pathlib(L); //注册LSQLite3相关内容。
+//    lsqlite_addpath(L); //注册LSQLite3相关内容。
     return 0; //flag for packages manager
 }
 
@@ -103,6 +137,7 @@ bool AppDelegate::applicationDidFinishLaunching()
     //LuaStack* stack = engine->getLuaStack();
     //register_custom_function(stack->getLuaState());
     
+//    engine->addCpath();
 #if CC_64BITS
     FileUtils::getInstance()->addSearchPath("src/64bit");
 #endif
