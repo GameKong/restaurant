@@ -23,6 +23,7 @@
 		1AF87BAA1F6F8733007BE51C /* LaunchScreen.storyboard in Resources */ = {isa = PBXBuildFile; fileRef = 1AF87BA91F6F8730007BE51C /* LaunchScreen.storyboard */; };
 		1AF87BAB1F6F8733007BE51C /* LaunchScreenBackground.png in Resources */ = {isa = PBXBuildFile; fileRef = 1AF87BA81F6F872F007BE51C /* LaunchScreenBackground.png */; };
 		294D0D721D0D572600F7F5D4 /* CoreText.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 294D0D711D0D572600F7F5D4 /* CoreText.framework */; };
+		2F55260B25E9E65F007D4648 /* auto_binding.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 2F55260725E9E65F007D4648 /* auto_binding.cpp */; };
 		2FB6CA9F24022928002AA3F5 /* Sqlite3 in Resources */ = {isa = PBXBuildFile; fileRef = 2FB6CA9E24022928002AA3F5 /* Sqlite3 */; };
 		2FB6CAA024022928002AA3F5 /* Sqlite3 in Resources */ = {isa = PBXBuildFile; fileRef = 2FB6CA9E24022928002AA3F5 /* Sqlite3 */; };
 		2FB6CAA324022949002AA3F5 /* lsqlite3.c in Sources */ = {isa = PBXBuildFile; fileRef = 2FB6CAA124022948002AA3F5 /* lsqlite3.c */; };
@@ -181,6 +182,8 @@
 		1AF87BA81F6F872F007BE51C /* LaunchScreenBackground.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; path = LaunchScreenBackground.png; sourceTree = "<group>"; };
 		1AF87BA91F6F8730007BE51C /* LaunchScreen.storyboard */ = {isa = PBXFileReference; lastKnownFileType = file.storyboard; path = LaunchScreen.storyboard; sourceTree = "<group>"; };
 		294D0D711D0D572600F7F5D4 /* CoreText.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = CoreText.framework; path = Platforms/iPhoneOS.platform/Developer/SDKs/iPhoneOS.sdk/System/Library/Frameworks/CoreText.framework; sourceTree = DEVELOPER_DIR; };
+		2F55260725E9E65F007D4648 /* auto_binding.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; name = auto_binding.cpp; path = ../Classes/auto_bind_test/auto_binding.cpp; sourceTree = "<group>"; };
+		2F55260A25E9E65F007D4648 /* auto_binding.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = auto_binding.h; path = ../Classes/auto_bind_test/auto_binding.h; sourceTree = "<group>"; };
 		2FB6CA9E24022928002AA3F5 /* Sqlite3 */ = {isa = PBXFileReference; lastKnownFileType = folder; name = Sqlite3; path = ../Classes/Sqlite3; sourceTree = "<group>"; };
 		2FB6CAA124022948002AA3F5 /* lsqlite3.c */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.c; name = lsqlite3.c; path = ../Classes/Sqlite3/lsqlite3.c; sourceTree = "<group>"; };
 		2FB6CAA224022948002AA3F5 /* sqlite3.c */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.c; name = sqlite3.c; path = ../Classes/Sqlite3/sqlite3.c; sourceTree = "<group>"; };
@@ -419,6 +422,8 @@
 			isa = PBXGroup;
 			children = (
 				F293BB7E15EB831F00256477 /* AppDelegate.cpp */,
+				2F55260725E9E65F007D4648 /* auto_binding.cpp */,
+				2F55260A25E9E65F007D4648 /* auto_binding.h */,
 				F293BB7F15EB831F00256477 /* AppDelegate.h */,
 				2FB6CA9E24022928002AA3F5 /* Sqlite3 */,
 			);
@@ -649,6 +654,7 @@
 				2FE7ABEE240420CA00AFB89E /* lsqlite3.c in Sources */,
 				2FE7ABEF240420CA00AFB89E /* sqlite3.c in Sources */,
 				F293BB9C15EB831F00256477 /* AppDelegate.cpp in Sources */,
+				2F55260B25E9E65F007D4648 /* auto_binding.cpp in Sources */,
 				5023812417EBBCAC00990C9B /* main.m in Sources */,
 				5023811817EBBCAC00990C9B /* AppController.mm in Sources */,
 			);

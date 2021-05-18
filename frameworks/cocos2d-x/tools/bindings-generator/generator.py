@@ -1413,7 +1413,7 @@ class Generator(object):
     def generate_code(self):
         # must read the yaml file first
         stream = file(os.path.join(self.target, "conversions.yaml"), "r")
-        data = yaml.load(stream)
+        data = yaml.load(stream, Loader=yaml.FullLoader)
         self.config = data
         implfilepath = os.path.join(self.outdir, self.out_file + ".cpp")
         headfilepath = os.path.join(self.outdir, self.out_file + ".hpp")
