@@ -53,7 +53,7 @@ android {
         res.srcDir "res"
         jniLibs.srcDir "jniLibt"
         manifest.srcFile "AndroidManifest.xml"
-        assets.srcDir "assets"
+        assets.srcDir "assets_encrypt"
     }
 
     externalNativeBuild {

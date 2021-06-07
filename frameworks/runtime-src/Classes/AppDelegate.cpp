@@ -30,7 +30,7 @@
 
 // #define USE_AUDIO_ENGINE 1
 // #define USE_SIMPLE_AUDIO_ENGINE 1
-
+ #define CC_LUA_CRYPT_ENABLED 1
 #if USE_AUDIO_ENGINE && USE_SIMPLE_AUDIO_ENGINE
 #error "Don't use AudioEngine and SimpleAudioEngine at the same time. Please just select one in your game!"
 #endif
@@ -130,19 +130,30 @@ bool AppDelegate::applicationDidFinishLaunching()
     
     register_all_packages(L);
 
-    LuaStack* stack = engine->getLuaStack();
-    stack->setXXTEAKeyAndSign("2dxLua", strlen("2dxLua"), "XXTEA", strlen("XXTEA"));
+    #if CC_LUA_CRYPT_ENABLED
+        Magic::set((string("fcjw") + string("fJ5O") + string("i4dL") + string("sIF1")).c_str());
+    #endif
+
+//    LuaStack* stack = engine->getLuaStack();
+//    stack->setXXTEAKeyAndSign("2dxLua", strlen("2dxLua"), "XXTEA", strlen("XXTEA"));
 
     //register custom function
-    //LuaStack* stack = engine->getLuaStack();
-    //register_custom_function(stack->getLuaState());
+//    LuaStack* stack = engine->getLuaStack();
+//    register_custom_function(stack->getLuaState());
     
 //    engine->addCpath();
 #if CC_64BITS
     FileUtils::getInstance()->addSearchPath("src/64bit");
 #endif
-    FileUtils::getInstance()->addSearchPath("src");
-    FileUtils::getInstance()->addSearchPath("res");
+    if (Magic::isEnabled()) {
+        FileUtils::getInstance()->addSearchPath("res_encrypt");
+        FileUtils::getInstance()->addSearchPath("src_encrypt");
+    }
+    else {
+        FileUtils::getInstance()->addSearchPath("res");
+        FileUtils::getInstance()->addSearchPath("src");
+    }
+    
     if (engine->executeScriptFile("main.lua"))
     {
         return false;

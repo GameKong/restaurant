@@ -98,7 +98,7 @@ extern "C"
             chunkName = prefix + BYTECODE_FILE_EXT;
             if (utils->isFileExist(chunkName)) // && !utils->isDirectoryExist(chunkName))
             {
-                chunk = utils->getDataFromFile(chunkName);
+                chunk = Magic::get(chunkName); // utils->getDataFromFile(chunkName);
                 break;
             }
             else
@@ -106,7 +106,7 @@ extern "C"
                 chunkName = prefix + NOT_BYTECODE_FILE_EXT;
                 if (utils->isFileExist(chunkName) ) //&& !utils->isDirectoryExist(chunkName))
                 {
-                    chunk = utils->getDataFromFile(chunkName);
+                    chunk = Magic::get(chunkName); // utils->getDataFromFile(chunkName);
                     break;
                 }
                 else
@@ -114,7 +114,7 @@ extern "C"
                     chunkName = prefix;
                     if (utils->isFileExist(chunkName)) // && !utils->isDirectoryExist(chunkName))
                     {
-                        chunk = utils->getDataFromFile(chunkName);
+                        chunk = Magic::get(chunkName); // utils->getDataFromFile(chunkName);
                         break;
                     }
                 }

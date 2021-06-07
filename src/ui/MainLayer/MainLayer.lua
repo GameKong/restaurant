@@ -794,10 +794,8 @@ end
 function MainLayer:onTouchHead()
     TipLayer.showTip("暂未开放")
     Audio.PlayEffect("music/btn.wav")
-    local a = require "mt"
-    TipLayer.showTip(tosring(a))
-    a.sleep()
-    TipLayer.showTip("暂未开放2")
+    -- local a = require "mt"
+    -- print(a)
 end
 
 -- 点击升级

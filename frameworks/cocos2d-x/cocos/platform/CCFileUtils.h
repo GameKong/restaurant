@@ -39,6 +39,7 @@ THE SOFTWARE.
 #include "base/CCAsyncTaskPool.h"
 #include "base/CCScheduler.h"
 #include "base/CCDirector.h"
+#include "base/magic/CCMagic.h"
 
 NS_CC_BEGIN
 
