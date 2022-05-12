@@ -103,8 +103,7 @@ Properties* Properties::createNonRefCounted(const std::string& url)
 
     // data will be released automatically when 'data' goes out of scope
     // so we pass data as weak pointer
-//    auto data = FileUtils::getInstance()->getDataFromFile(fileString);
-    auto data = Magic::get(fileString); // FileUtils::getInstance()->getDataFromFile(fileString);
+    auto data = FileUtils::getInstance()->getDataFromFile(fileString);
     ssize_t dataIdx = 0;
     Properties* properties = new (std::nothrow) Properties(&data, &dataIdx);
     properties->resolveInheritance();

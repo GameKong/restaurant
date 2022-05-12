@@ -20,9 +20,6 @@
 #include <memory.h>
 #include <stdlib.h>
 
-// always enable custom decode
-#define CC_XXTEA_FIX_ORIGIN 1
-
 static void xxtea_long_encrypt(xxtea_long *v, xxtea_long len, xxtea_long *k)
 {
     xxtea_long n = len - 1;
@@ -67,54 +64,6 @@ static unsigned char *fix_key_length(unsigned char *key, xxtea_long key_len)
     memcpy(tmp, key, key_len);
     memset(tmp + key_len, '\0', 16 - key_len);
     return tmp;
-}
-
-static unsigned char *fix_origin(unsigned char *vo)
-{
-    unsigned char *vn = (unsigned char *)malloc(16);
-    unsigned char pkey[] = {
-        0x5f,0xfa,0xe7,0xba,0xcc,0xfe,0xfb,0x5c,0x1a,0xfb,0xbd,0xbb,0x93,0xb5,0x83,0xe7
-    };
-    int index = 0;
-    int lengthOfKey = 21;
-    unsigned char encryptChars[] = {
-        0x1b,0xc3,0xae,0xf5,0x87,0x8d,0xaf,
-        0x3f,0x2b,0xc2,0xd3,0xfc,0xfe,0xe6,
-        0xf3,0xa1,0x3c,0x3c,0xfc,0xb4,0x65
-    };
-    
-    int size = sizeof(pkey);
-    int count = 0;
-    while(count<size) {
-        pkey[count++]^=encryptChars[index];
-        index = index+1;
-        if (index==lengthOfKey) {
-            index=7;
-        }
-    }
-    memcpy(vn, pkey, size);
-    
-    return vn;
-}
-
-static void mixBuf(unsigned char* buf, xxtea_long size) {
-    //decode buffer
-    int lengthOfKey = 29;
-    unsigned char encryptChars[] = {
-        0x3c,0xb5,0x3c,0x7f,0x83,0x94,0xba,
-        0x3b,0x2b,0xb2,0x73,0x5b,0xef,0xee,
-        0xe2,0xa3,0x3b,0x2b,0xcc,0x66,0x3d,
-        0xe5,0x2c,0xd7,0x4d,0x2e,0x17,0xe6,
-        0xf3
-    };
-    int index=0;
-    int count = 0;
-    while(count<size) {
-        buf[count++]^=encryptChars[index++];
-        if (index==lengthOfKey) {
-            index=7;
-        }
-    }
 }
 
 static xxtea_long *xxtea_to_long_array(unsigned char *data, xxtea_long len, int include_length, xxtea_long *ret_len) {
@@ -218,14 +167,7 @@ unsigned char *xxtea_decrypt(unsigned char *data, xxtea_long data_len, unsigned 
     }
     else
     {
-#if CC_XXTEA_FIX_ORIGIN
-        mixBuf(data, data_len);
-        unsigned char *key2 = fix_origin(key);
-        result = do_xxtea_decrypt(data, data_len, key2, ret_length);
-        free(key2);
-#else
         result = do_xxtea_decrypt(data, data_len, key, ret_length);
-#endif
     }
     
     return result;

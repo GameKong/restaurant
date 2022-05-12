@@ -96,12 +96,8 @@ bool AppDelegate::applicationDidFinishLaunching()
     
     register_all_packages(L);
 
-    #if CC_LUA_CRYPT_ENABLED
-        Magic::set((string("fcjw") + string("fJ5O") + string("i4dL") + string("sIF1")).c_str());
-    #endif
-
-//    LuaStack* stack = engine->getLuaStack();
-//    stack->setXXTEAKeyAndSign("2dxLua", strlen("2dxLua"), "XXTEA", strlen("XXTEA"));
+    LuaStack* stack = engine->getLuaStack();
+    stack->setXXTEAKeyAndSign("2dxLua", strlen("2dxLua"), "XXTEA", strlen("XXTEA"));
 
     //register custom function
     //LuaStack* stack = engine->getLuaStack();
@@ -110,15 +106,8 @@ bool AppDelegate::applicationDidFinishLaunching()
 #if CC_64BITS
     FileUtils::getInstance()->addSearchPath("src/64bit");
 #endif
-    if (Magic::isEnabled()) {
-        FileUtils::getInstance()->addSearchPath("res_encrypt");
-        FileUtils::getInstance()->addSearchPath("src_encrypt");
-    }
-    else {
-        FileUtils::getInstance()->addSearchPath("res");
-        FileUtils::getInstance()->addSearchPath("src");
-    }
-    
+    FileUtils::getInstance()->addSearchPath("src");
+    FileUtils::getInstance()->addSearchPath("res");
     if (engine->executeScriptFile("main.lua"))
     {
         return false;

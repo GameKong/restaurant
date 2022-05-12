@@ -1,5 +1,5 @@
 {
-  "ndkFolder": "/Users/kongling/Library/Android/sdk/ndk/21.0.6113669",
+  "ndkFolder": "/Users/kongling/android_tools/android-ndk-r20b",
   "messages": [
     {
       "level": "INFO",
@@ -7,7 +7,7 @@
     },
     {
       "level": "INFO",
-      "message": "ndk.dir in local.properties is /Users/kongling/Library/Android/sdk/ndk/21.0.6113669"
+      "message": "ndk.dir in local.properties is /Users/kongling/android_tools/android-ndk-r20b"
     },
     {
       "level": "INFO",
@@ -19,7 +19,7 @@
     },
     {
       "level": "INFO",
-      "message": "Considering /Users/kongling/Library/Android/sdk/ndk/21.0.6113669 by ndk.dir"
+      "message": "Considering /Users/kongling/android_tools/android-ndk-r20b by ndk.dir"
     },
     {
       "level": "INFO",
@@ -35,7 +35,7 @@
     },
     {
       "level": "INFO",
-      "message": "Found requested ndk.dir (/Users/kongling/Library/Android/sdk/ndk/21.0.6113669) which has version 21.0.6113669"
+      "message": "Found requested ndk.dir (/Users/kongling/android_tools/android-ndk-r20b) which has version 20.1.5948944"
     }
   ]
 }

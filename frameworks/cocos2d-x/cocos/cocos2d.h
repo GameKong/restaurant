@@ -64,7 +64,6 @@ THE SOFTWARE.
 #include "base/ccTypes.h"
 #include "base/ccUTF8.h"
 #include "base/ccUtils.h"
-#include "base/magic/CCMagic.h"
 
 // EventDispatcher
 #include "base/CCEventAcceleration.h"

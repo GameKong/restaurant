@@ -280,7 +280,7 @@ int LuaStack::executeScriptFile(const char* filename)
     }
 
     std::string fullPath = utils->fullPathForFilename(buf);
-    Data data = Magic::get(fullPath); // utils->getDataFromFile(fullPath);
+    Data data = utils->getDataFromFile(fullPath);
     int rn = 0;
     if (!data.isNull())
     {

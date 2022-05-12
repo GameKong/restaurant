@@ -511,8 +511,8 @@ bool Image::initWithImageFile(const std::string& path)
     bool ret = false;
     _filePath = FileUtils::getInstance()->fullPathForFilename(path);
 
-    Data data = Magic::get(_filePath); // FileUtils::getInstance()->getDataFromFile(_filePath);
-    
+    Data data = FileUtils::getInstance()->getDataFromFile(_filePath);
+
     if (!data.isNull())
     {
         ret = initWithImageData(data.getBytes(), data.getSize());
@@ -526,7 +526,7 @@ bool Image::initWithImageFileThreadSafe(const std::string& fullpath)
     bool ret = false;
     _filePath = fullpath;
 
-    Data data = Magic::get(_filePath); // FileUtils::getInstance()->getDataFromFile(_filePath);
+    Data data = FileUtils::getInstance()->getDataFromFile(fullpath);
 
     if (!data.isNull())
     {

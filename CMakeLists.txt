@@ -152,10 +152,6 @@ else()
     
     add_subdirectory(${COCOS2DX_ROOT_PATH}/cocos/scripting/lua-bindings/proj.android ${ENGINE_BINARY_PATH}/cocos/lua-android)
     target_link_libraries(${APP_NAME} -Wl,--whole-archive lua_android_spec -Wl,--no-whole-archive)
-
-    # lua 加密，编译选项
-    target_compile_definitions(${APP_NAME} PUBLIC $<$<CONFIG:Debug>:CC_LUA_CRYPT_ENABLED=0>)
-    target_compile_definitions(${APP_NAME} PUBLIC $<$<CONFIG:Release>:CC_LUA_CRYPT_ENABLED=1>)
 endif()
 
 target_link_libraries(${APP_NAME} luacocos2d)

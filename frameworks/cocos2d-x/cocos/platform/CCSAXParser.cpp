@@ -147,7 +147,7 @@ bool SAXParser::parse(const char* xmlData, size_t dataLength)
 bool SAXParser::parse(const std::string& filename)
 {
     bool ret = false;
-    Data data = Magic::get(filename); // FileUtils::getInstance()->getDataFromFile(filename);
+    Data data = FileUtils::getInstance()->getDataFromFile(filename);
     if (!data.isNull())
     {
         ret = parse((const char*)data.getBytes(), data.getSize());
